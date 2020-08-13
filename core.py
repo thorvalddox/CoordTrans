@@ -78,6 +78,15 @@ minkovski = sympy.diag(1, 1, 1, -1)
 
 
 class CoordTransPair():
+    allow_simplify = False
+    @classmethod
+    def simplify(cls,expr):
+        if cls.allow_simplify:
+            return sympy.simplify(expr)
+        else:
+            return expr
+
+
     def __init__(self, left: CoordTrans, right: CoordTrans):
         self.left = left
         self.right = right
@@ -162,11 +171,11 @@ class CoordTransPair():
         M = sympy.Matrix(m)
         if new_coords:
             M = self.transform_eq(M, inv)
-        return sympy.simplify(M)
+        return self.simplify(M)
 
     @lru_cache(maxsize=248)
     def volume(self, new_coords=False):
-        return sympy.simplify(self.jacobian(new_coords).det())
+        return self.simplify(self.jacobian(new_coords).det())
 
     @lru_cache(maxsize=248)
     def metric(self, new_coords=False):
@@ -175,7 +184,7 @@ class CoordTransPair():
         except NotImplementedError:
             J = self.jacobian(new_coords).inv()
 
-        return sympy.simplify(J.T * minkovski * J)
+        return self.simplify(J.T * minkovski * J)
 
     def transform_speeds(self, vx, vy, vz):
         return self.jacobian(True)[3:, :]
@@ -183,15 +192,15 @@ class CoordTransPair():
     def kinetic_energy(self, new_coords=False):
         u, v, w = sympy.symbols('v_u v_v v_w')
         V = sympy.Matrix([[u, v, w, 0]]).T
-        return sympy.simplify((V.T * self.metric(new_coords) * V).det())
+        return self.simplify((V.T * self.metric(new_coords) * V).det())
 
     def mixed_energy(self, new_coords=False):
         u, v, w = sympy.symbols('v_u v_v v_w')
         V = sympy.Matrix([[u, v, w, 0]]).T
-        return sympy.simplify((self.metric(new_coords)[3:, :] * V).det())
+        return self.simplify((self.metric(new_coords)[3:, :] * V).det())
 
     def potential_energy(self, new_coords=False):
-        return sympy.simplify(self.metric(new_coords)[3:, 3:].det() + 1)
+        return self.simplify(self.metric(new_coords)[3:, 3:].det() + 1)
 
     def display_physics(self, add_mass=True):
         if add_mass:

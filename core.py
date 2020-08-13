@@ -79,9 +79,8 @@ minkovski = sympy.diag(1, 1, 1, -1)
 
 class CoordTransPair():
     allow_simplify = False
-    @classmethod
-    def simplify(cls,expr):
-        if cls.allow_simplify:
+    def simplify(self,expr):
+        if self.allow_simplify:
             return sympy.simplify(expr)
         else:
             return expr

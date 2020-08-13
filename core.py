@@ -288,14 +288,22 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
     zer = np.zeros(fine.shape)
     for c in course:
         color = 'b-' if abs(c) == max(course) else 'k--'
-        xdx, xdy, _, _ = func(zer + c, fine, zer, zer)
-        print(xdx,xdy)
-        plt.plot(xdx, xdy, color)
-        ydx, ydy, _, _ = func(fine, zer + c, zer, zer)
-        plt.plot(ydx, ydy, color)
+        try:
+            xdx, xdy, _, _ = func(zer + c, fine, zer, zer)
+            plt.plot(xdx, xdy, color)
+        except TypeError:
+            pass
+        try:
+            ydx, ydy, _, _ = func(fine, zer + c, zer, zer)
+            plt.plot(ydx, ydy, color)
+        except TypeError:
+            pass
     for c in custom:
-        xdx, xdy, _, _ = func(c[0], c[1], zer, zer)
-        plt.plot(xdx, xdy, 'r')
+        try:
+            xdx, xdy, _, _ = func(c[0], c[1], zer, zer)
+            plt.plot(xdx, xdy, 'r')
+        except TypeError:
+            pass
     plt.xlim(-esize, esize)
     plt.ylim(-esize, esize)
 

@@ -112,16 +112,16 @@ class CoordTransPair():
 
     def test_inverse(self, lst=[-1, 0, 1, 2]):
         for x, y in self.val_unit().test(lst):
-            xx = list(map(float,x))
+            xx = list(map(float, x))
             yy = list(map(float, y))
-            if any(isnan(z) for z in xx+yy):
+            if any(isnan(z) for z in xx + yy):
                 print(f'{xx} <{x}> is not {yy} <{y}>')
             else:
                 assert xx == yy, f'{xx} <{x}> is not {yy} <{y}>'
         for x, y in (~self).val_unit().test(lst):
             xx = list(map(float, x))
             yy = list(map(float, y))
-            if any(isnan(z) for z in xx+yy):
+            if any(isnan(z) for z in xx + yy):
                 print(f'{xx} <{x}> is not {yy} <{y}> ~~')
             else:
                 assert xx == yy, f'{xx} <{x}> is not {yy} <{y}> ~~'
@@ -286,24 +286,20 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
     course = np.linspace(-size, size, hits_course)
     fine = np.linspace(-size, size, hits_fine)
     zer = np.zeros(fine.shape)
+
+    def draw(X, Y, color):
+        xx, yy, _, _ = func(X, Y, zer, zer)
+        arr = np.array([xx, yy]).T
+        arr = arr[~np.isnan(arr).any(axis=1)]
+        plt.plot(arr[0], arr[1], color)
+
     for c in course:
         color = 'b-' if abs(c) == max(course) else 'k--'
-        try:
-            xdx, xdy, _, _ = func(zer + c, fine, zer, zer)
-            plt.plot(xdx, xdy, color)
-        except TypeError:
-            pass
-        try:
-            ydx, ydy, _, _ = func(fine, zer + c, zer, zer)
-            plt.plot(ydx, ydy, color)
-        except TypeError:
-            pass
+        draw(zer + c, fine,color)
+        draw( fine, zer+c, color)
+
     for c in custom:
-        try:
-            xdx, xdy, _, _ = func(c[0], c[1], zer, zer)
-            plt.plot(xdx, xdy, 'r')
-        except TypeError:
-            pass
+        draw( fine, zer+c, 'r-')
     plt.xlim(-esize, esize)
     plt.ylim(-esize, esize)
 
@@ -354,7 +350,6 @@ def build_report(ct, c=3, notebook=False):
     else:
         yield get_pgf()
     yield from ct.display_physics()
-
 
 
 def write_report(ct, filename, c=3):

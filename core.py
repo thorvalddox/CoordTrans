@@ -290,7 +290,7 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
     def draw(X, Y, color):
         xx, yy, _, _ = func(X, Y, zer, zer)
         arr = np.array([xx, yy],dtype=np.complex)
-        print(arr)
+        #print(arr)
         arr = arr[:,~np.isnan(arr).any(axis=0)]
         arr = np.real(arr).astype(np.float)
         plt.plot(arr[0], arr[1], color)

@@ -111,9 +111,13 @@ class CoordTransPair():
 
     def test_inverse(self, lst=[-1, 0, 1, 2]):
         for x, y in self.val_unit().test(lst):
-            assert x == y, f'{x} is not {y}'
+            xx = list(map(float,x))
+            yy = list(map(float, y))
+            assert xx == yy, f'{xx} <{x}> is not {yy} <{y}>'
         for x, y in (~self).val_unit().test(lst):
-            assert x == y, f'{x} is not {y} ~'
+            xx = list(map(float, x))
+            yy = list(map(float, y))
+            assert xx == yy, f'{xx} <{x}> is not {yy} <{y}> ~~'
         print('test successfull')
 
     def coordswap(self, other):

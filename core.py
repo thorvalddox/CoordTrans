@@ -305,23 +305,36 @@ def get_pgf():
         return fakefile.getvalue().replace('\u2212', '-')
 
 
-def build_report(ct, c=3):
+def build_report(ct, c=3, notebook=False):
     t = np.linspace(0, 2 * np.pi, 65)
     X = np.sin(t)
     Y = np.cos(t)
     plt.figure(figsize=(4, 4))
     plot_transform(identity(), 2, 3, custom=[(X, Y)])
-    yield get_pgf()
+    if notebook:
+        plt.show()
+    else:
+        yield get_pgf()
     plt.figure(figsize=(4, 4))
     plot_transform(ct, 2, c, custom=[(X, Y)])
-    yield get_pgf()
+    if notebook:
+        plt.show()
+    else:
+        yield get_pgf()
     plt.figure(figsize=(4, 4))
     plot_transform(swapleft().coordswap(ct), 2, c, custom=[(X, Y)])
-    yield get_pgf()
+    if notebook:
+        plt.show()
+    else:
+        yield get_pgf()
     plt.figure(figsize=(4, 4))
     plot_transform((~swapleft()).coordswap(ct), 2, c, custom=[(X, Y)])
-    yield get_pgf()
-    yield '\n'.join(ct.display_physics())
+    if notebook:
+        plt.show()
+    else:
+        yield get_pgf()
+    yield from ct.display_physics()
+
 
 
 def write_report(ct, filename, c=3):

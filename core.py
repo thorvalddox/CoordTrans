@@ -289,12 +289,12 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
     for c in course:
         color = 'b-' if abs(c) == max(course) else 'k--'
         xdx, xdy, _, _ = func(zer + c, fine, zer, zer)
-        plt.plot(xdx, xdy, color)
+        plt.plot(np.real(np.array(xdx)), np.real(np.array(xdy)), color)
         ydx, ydy, _, _ = func(fine, zer + c, zer, zer)
-        plt.plot(ydx, ydy, color)
+        plt.plot(np.real(np.array(ydx)), np.real(np.array(ydy)), color)
     for c in custom:
         xdx, xdy, _, _ = func(c[0], c[1], zer, zer)
-        plt.plot(xdx, xdy, 'r')
+        plt.plot(np.real(np.array(xdx)), np.real(np.array(xdy)), 'r')
     plt.xlim(-esize, esize)
     plt.ylim(-esize, esize)
 

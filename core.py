@@ -6,6 +6,7 @@ from io import StringIO
 import matplotlib.pyplot as plt
 import numpy as np
 from types import SimpleNamespace
+from math import isnan
 
 
 class CoordTrans:
@@ -113,11 +114,17 @@ class CoordTransPair():
         for x, y in self.val_unit().test(lst):
             xx = list(map(float,x))
             yy = list(map(float, y))
-            assert xx == yy, f'{xx} <{x}> is not {yy} <{y}>'
+            if any(isnan(z) for z in xx+yy):
+                print(f'{xx} <{x}> is not {yy} <{y}>')
+            else:
+                assert xx == yy, f'{xx} <{x}> is not {yy} <{y}>'
         for x, y in (~self).val_unit().test(lst):
             xx = list(map(float, x))
             yy = list(map(float, y))
-            assert xx == yy, f'{xx} <{x}> is not {yy} <{y}> ~~'
+            if any(isnan(z) for z in xx+yy):
+                print(f'{xx} <{x}> is not {yy} <{y}> ~~')
+            else:
+                assert xx == yy, f'{xx} <{x}> is not {yy} <{y}> ~~'
         print('test successfull')
 
     def coordswap(self, other):

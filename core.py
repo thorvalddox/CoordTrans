@@ -300,7 +300,7 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
         draw( fine, zer+c, color)
 
     for c in custom:
-        draw( fine, zer+c, 'r-')
+        draw( c[0], c[1], 'r-')
     plt.xlim(-esize, esize)
     plt.ylim(-esize, esize)
 

@@ -291,7 +291,7 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
         xx, yy, _, _ = func(X, Y, zer, zer)
         arr = np.array([xx, yy],dtype=np.float)
         print(arr)
-        arr = arr[~np.isnan(arr).any(axis=0),:]
+        arr = arr[:,~np.isnan(arr).any(axis=0)]
         plt.plot(arr[0], arr[1], color)
 
     for c in course:

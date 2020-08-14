@@ -373,7 +373,7 @@ def display_physics(R, ct, add_mass=True):
                 R.report_math(
                     sympy.latex(energy_to_force(m * ct.potential_energy(new_coords), sympy.symbols('u v w'))))
         except NotImplementedError:
-            yield 'cannot invert system'
+            R.report_text('cannot invert system')
         else:
             break
 

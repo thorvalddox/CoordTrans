@@ -79,12 +79,12 @@ minkovski = sympy.diag(1, 1, 1, -1)
 
 class CoordTransPair():
     allow_simplify = False
-    def simplify(self,expr):
+
+    def simplify(self, expr):
         if self.allow_simplify:
             return sympy.simplify(expr)
         else:
             return expr
-
 
     def __init__(self, left: CoordTrans, right: CoordTrans):
         self.left = left
@@ -140,33 +140,33 @@ class CoordTransPair():
 
     def transform_eq(self, eq, reverse=False):
         if reverse:
-            u, v, w, tau = sympy.symbols('x y z t', positive = True, real = True)
-            x, y, z, t = sympy.symbols('u v w \\tau', positive = True, real = True)
+            u, v, w, tau = sympy.symbols('x y z t', positive=True, real=True)
+            x, y, z, t = sympy.symbols('u v w \\tau', positive=True, real=True)
             T = self.left(u, v, w, tau)
         else:
-            u, v, w, tau = sympy.symbols('u v w \\tau', positive = True, real = True)
-            x, y, z, t = sympy.symbols('x y z t', positive = True, real = True)
+            u, v, w, tau = sympy.symbols('u v w \\tau', positive=True, real=True)
+            x, y, z, t = sympy.symbols('x y z t', positive=True, real=True)
             T = self.right(u, v, w, tau)
         T = {kk: vv for kk, vv in zip([x, y, z, t], T)}
         return eq.subs(T)
 
     def geodesic(self):
         x, y, z, t = sympy.symbols('x y z t', positive=True, real=True)
-        a, b, c, aa,bb,cc = sympy.symbols('a b c \\alpha \\beta \\gamma')
-        return self.simplify(self.transform_eq(sympy.Matrix([[a*x+b*y+c*z,aa*x+bb*y+cc*z]])))
+        a, b, c, aa, bb, cc = sympy.symbols('a b c \\alpha \\beta \\gamma')
+        return self.simplify(self.transform_eq(sympy.Matrix([[a * x + b * y + c * z, aa * x + bb * y + cc * z]])))
 
     @lru_cache(maxsize=248)
     def jacobian(self, new_coords=False, inv=False):
         m = []
         if not inv:
-            x, y, z, t = sympy.symbols('x y z t', positive = True, real = True)
+            x, y, z, t = sympy.symbols('x y z t', positive=True, real=True)
 
             for s in self.left(x, y, z, t):
                 l = [sympy.diff(s, v) for v in [x, y, z, t]]
                 # print(l)
                 m.append(l)
         else:
-            x, y, z, t = sympy.symbols('u v w \tau', positive = True, real = True)
+            x, y, z, t = sympy.symbols('u v w \tau', positive=True, real=True)
 
             for s in self.right(x, y, z, t):
                 l = [sympy.diff(s, v) for v in [x, y, z, t]]
@@ -205,43 +205,6 @@ class CoordTransPair():
 
     def potential_energy(self, new_coords=False):
         return self.simplify(self.metric(new_coords)[3:, 3:].det() + 1)
-
-    def display_physics(self, add_mass=True):
-        if add_mass:
-            m = sympy.symbols('m')
-        else:
-            m = 1
-        yield '$${}$$'.format(self.latex())
-        for new_coords in (True, False):
-            try:
-                yield 'jacobian:'
-                yield '$${}$$'.format(sympy.latex(self.jacobian(new_coords)))
-                yield 'volume:'
-                yield '$${}$$'.format(sympy.latex(self.volume(new_coords)))
-                yield 'metric:'
-                yield '$${}$$'.format(sympy.latex(self.metric(new_coords)))
-                yield 'kinetic energy:'
-                yield '$${}$$'.format(sympy.latex(m * self.kinetic_energy(new_coords)))
-                yield 'mixed energy:'
-                yield '$${}$$'.format(sympy.latex(m * self.mixed_energy(new_coords)))
-                yield 'potential energy:'
-                yield '$${}$$'.format(sympy.latex(m * self.potential_energy(new_coords)))
-                if new_coords:
-                    yield 'geodesic:'
-                    yield '$${}$$'.format(sympy.latex(self.geodesic()))
-                    yield 'relativistic force 1 (space only)'
-                    yield '$${}$$'.format(
-                        sympy.latex(energy_to_force(m * self.kinetic_energy(new_coords), sympy.symbols('u v w'))))
-                    yield 'relativistic force 2 (space and time)'
-                    yield '$${}$$'.format(
-                        sympy.latex(energy_to_force(m * self.mixed_energy(new_coords), sympy.symbols('u v w'))))
-                    yield 'relativistic force 3 (time only)'
-                    yield '$${}$$'.format(
-                        sympy.latex(energy_to_force(m * self.potential_energy(new_coords), sympy.symbols('u v w'))))
-            except NotImplementedError:
-                yield 'cannot invert system'
-            else:
-                break
 
 
 def energy_to_force(eq, pos_var):
@@ -304,19 +267,19 @@ def plot_transform(ct, size, esize, hits_course=9, hits_fine=65, custom=()):
 
     def draw(X, Y, color):
         xx, yy, _, _ = func(X, Y, zer, zer)
-        arr = np.array([xx, yy],dtype=np.complex)
-        #print(arr)
-        arr = arr[:,~np.isnan(arr).any(axis=0)]
+        arr = np.array([xx, yy], dtype=np.complex)
+        # print(arr)
+        arr = arr[:, ~np.isnan(arr).any(axis=0)]
         arr = np.real(arr).astype(np.float)
         plt.plot(arr[0], arr[1], color)
 
     for c in course:
         color = 'b-' if abs(c) == max(course) else 'k--'
-        draw(zer + c, fine,color)
-        draw( fine, zer+c, color)
+        draw(zer + c, fine, color)
+        draw(fine, zer + c, color)
 
     for c in custom:
-        draw( c[0], c[1], 'r-')
+        draw(c[0], c[1], 'r-')
     plt.xlim(-esize, esize)
     plt.ylim(-esize, esize)
 
@@ -338,49 +301,105 @@ def get_pgf():
         return fakefile.getvalue().replace('\u2212', '-')
 
 
-def build_report(ct, c=3, notebook=False):
+class Report_builder:
+    mathdisplay = print
+
+    def __init__(self, usenotebook=False):
+        self.usenotebook = usenotebook
+        self.data = []
+
+    def report_text(self, text):
+        if self.usenotebook:
+            print(text)
+        else:
+            self.data.append(text)
+
+    def report_math(self, text):
+        if self.usenotebook:
+            self.mathdisplay(text)
+        else:
+            self.data.append('$${}$$'.format(text))
+
+    def report_graph(self):
+        if self.usenotebook:
+            plt.show()
+        else:
+            self.data.append(get_pgf())
+
+    def write_report(self, filename):
+        with open(filename, 'w') as file:
+            file.write('\\documentclass{article}\n')
+            file.write('\\usepackage{fullpage}\n')
+            file.write('\\usepackage{amsmath}\n')
+            file.write('\\usepackage{amssymb}\n')
+            file.write('\\usepackage{pgf}\n')
+            file.write('\\begin{document}\n')
+            for line in self.data:
+                file.write(line)
+                file.write('\n\n')
+            file.write('\\end{document}')
+
+
+def display_physics(R, ct, add_mass=True):
+    if add_mass:
+        m = sympy.symbols('m')
+    else:
+        m = 1
+    R.report_math(ct.latex())
+    for new_coords in (True, False):
+        try:
+            R.report_text('jacobian:')
+            R.report_math(sympy.latex(ct.jacobian(new_coords)))
+            R.report_text('volume:')
+            R.report_math(sympy.latex(ct.volume(new_coords)))
+            R.report_text('metric:')
+            R.report_math(sympy.latex(ct.metric(new_coords)))
+            R.report_text('kinetic energy:')
+            R.report_math(sympy.latex(m * ct.kinetic_energy(new_coords)))
+            R.report_text('mixed energy:')
+            R.report_math(sympy.latex(m * ct.mixed_energy(new_coords)))
+            R.report_text('potential energy:')
+            R.report_math(sympy.latex(m * ct.potential_energy(new_coords)))
+            if new_coords:
+                R.report_text('geodesic:')
+                R.report_math(sympy.latex(ct.geodesic()))
+                R.report_text('relativistic force 1 (space only)')
+                R.report_math(
+                    sympy.latex(energy_to_force(m * ct.kinetic_energy(new_coords), sympy.symbols('u v w'))))
+                R.report_text('relativistic force 2 (space and time)')
+                R.report_math(
+                    sympy.latex(energy_to_force(m * ct.mixed_energy(new_coords), sympy.symbols('u v w'))))
+                R.report_text('relativistic force 3 (time only)')
+                R.report_math(
+                    sympy.latex(energy_to_force(m * ct.potential_energy(new_coords), sympy.symbols('u v w'))))
+        except NotImplementedError:
+            yield 'cannot invert system'
+        else:
+            break
+
+
+def build_report(R, ct, c=3):
     t = np.linspace(0, 2 * np.pi, 65)
     X = np.sin(t)
     Y = np.cos(t)
     plt.figure(figsize=(4, 4))
     plot_transform(identity(), 2, 3, custom=[(X, Y)])
-    if notebook:
-        plt.show()
-    else:
-        yield get_pgf()
+    R.report_graph()
     plt.figure(figsize=(4, 4))
     plot_transform(ct, 2, c, custom=[(X, Y)])
-    if notebook:
-        plt.show()
-    else:
-        yield get_pgf()
+    R.report_graph()
     plt.figure(figsize=(4, 4))
     plot_transform(swapleft().coordswap(ct), 2, c, custom=[(X, Y)])
-    if notebook:
-        plt.show()
-    else:
-        yield get_pgf()
+    R.report_graph()
     plt.figure(figsize=(4, 4))
     plot_transform((~swapleft()).coordswap(ct), 2, c, custom=[(X, Y)])
-    if notebook:
-        plt.show()
-    else:
-        yield get_pgf()
-    yield from ct.display_physics()
+    R.report_graph()
+    display_physics(R, ct)
 
 
-def write_report(ct, filename, c=3):
-    with open(filename, 'w') as file:
-        file.write('\\documentclass{article}\n')
-        file.write('\\usepackage{fullpage}\n')
-        file.write('\\usepackage{amsmath}\n')
-        file.write('\\usepackage{amssymb}\n')
-        file.write('\\usepackage{pgf}\n')
-        file.write('\\begin{document}\n')
-        for line in build_report(ct, c):
-            file.write(line)
-            file.write('\n\n')
-        file.write('\\end{document}')
+def write_report(ct, c=3, notebook=False):
+    R = Report_builder(notebook)
+    build_report(R, ct, c)
 
 
 CoordTransPair.write_report = write_report

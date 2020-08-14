@@ -150,6 +150,11 @@ class CoordTransPair():
         T = {kk: vv for kk, vv in zip([x, y, z, t], T)}
         return eq.subs(T)
 
+    def geodesic(self):
+        x, y, z, t = sympy.symbols('x y z t', positive=True, real=True)
+        a, b, c, aa,bb,cc = sympy.symbols('a b c \\alpha \\beta \\gamma')
+        return self.simplify(self.transform_eq(sympy.Matrix([[a*x+b*y+c*z,aa*x+bb*y+cc*z]])))
+
     @lru_cache(maxsize=248)
     def jacobian(self, new_coords=False, inv=False):
         m = []
@@ -222,6 +227,8 @@ class CoordTransPair():
                 yield 'potential energy:'
                 yield '$${}$$'.format(sympy.latex(m * self.potential_energy(new_coords)))
                 if new_coords:
+                    yield 'geodesic:'
+                    yield '$${}$$'.format(sympy.latex(self.geodesic()))
                     yield 'relativistic force 1 (space only)'
                     yield '$${}$$'.format(
                         sympy.latex(energy_to_force(m * self.kinetic_energy(new_coords), sympy.symbols('u v w'))))

@@ -151,9 +151,10 @@ class CoordTransPair():
         return eq.subs(T)
 
     def geodesic(self):
-        x, y, z, t = sympy.symbols('x y z t', positive=True, real=True)
-        a, b, c, aa, bb, cc = sympy.symbols('a b c \\alpha \\beta \\gamma')
-        return self.simplify(self.transform_eq(sympy.Matrix([[a * x + b * y + c * z, aa * x + bb * y + cc * z]])))
+        x0, y0, z0, x1, y1, z1 = sympy.symbols('x_0 y_0 z_0 x_1 y_1 z_1', positive=True, real=True)
+        kappa,c  = sympy.symbols('\\kappa c')
+        return self.simplify(
+            sympy.Matrix([list(self.left((x0 - x1) * kappa + x0, (y0 - y1) * kappa + y0, (z0 - z1) * kappa + z0, c*kappa))]))
 
     @lru_cache(maxsize=248)
     def jacobian(self, new_coords=False, inv=False):
@@ -166,7 +167,7 @@ class CoordTransPair():
                 # print(l)
                 m.append(l)
         else:
-            x, y, z, t = sympy.symbols('u v w \tau', positive=True, real=True)
+            x, y, z, t = sympy.symbols('u v w \\tau', positive=True, real=True)
 
             for s in self.right(x, y, z, t):
                 l = [sympy.diff(s, v) for v in [x, y, z, t]]
@@ -311,20 +312,17 @@ class Report_builder:
     def report_text(self, text):
         if self.usenotebook:
             print(text)
-        else:
-            self.data.append(text)
+        self.data.append(text)
 
     def report_math(self, text):
         if self.usenotebook:
             self.mathdisplay(text)
-        else:
-            self.data.append('$${}$$'.format(text))
+        self.data.append('$${}$$'.format(text))
 
     def report_graph(self):
         if self.usenotebook:
             plt.show()
-        else:
-            self.data.append(get_pgf())
+        self.data.append(get_pgf())
 
     def write_report(self, filename):
         with open(filename, 'w') as file:

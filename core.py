@@ -140,12 +140,12 @@ class CoordTransPair():
 
     def transform_eq(self, eq, reverse=False):
         if reverse:
-            u, v, w, tau = sympy.symbols('x y z t')
-            x, y, z, t = sympy.symbols('u v w \\tau')
+            u, v, w, tau = sympy.symbols('x y z t', positive = True, real = True)
+            x, y, z, t = sympy.symbols('u v w \\tau', positive = True, real = True)
             T = self.left(u, v, w, tau)
         else:
-            u, v, w, tau = sympy.symbols('u v w \\tau')
-            x, y, z, t = sympy.symbols('x y z t')
+            u, v, w, tau = sympy.symbols('u v w \\tau', positive = True, real = True)
+            x, y, z, t = sympy.symbols('x y z t', positive = True, real = True)
             T = self.right(u, v, w, tau)
         T = {kk: vv for kk, vv in zip([x, y, z, t], T)}
         return eq.subs(T)
@@ -154,14 +154,14 @@ class CoordTransPair():
     def jacobian(self, new_coords=False, inv=False):
         m = []
         if not inv:
-            x, y, z, t = sympy.symbols('x y z t')
+            x, y, z, t = sympy.symbols('x y z t', positive = True, real = True)
 
             for s in self.left(x, y, z, t):
                 l = [sympy.diff(s, v) for v in [x, y, z, t]]
                 # print(l)
                 m.append(l)
         else:
-            x, y, z, t = sympy.symbols('u v w \tau')
+            x, y, z, t = sympy.symbols('u v w \tau', positive = True, real = True)
 
             for s in self.right(x, y, z, t):
                 l = [sympy.diff(s, v) for v in [x, y, z, t]]
